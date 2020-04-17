@@ -14,9 +14,8 @@ admin.initializeApp({
 });
 
 
-import IndexMiddleWare, * as indexRouter from './routes/index';
-
-
+import IndexMiddleWare, * as indexRouter from './classes/index';
+import BotManager from './classes/BotManager';
 
 var app = express();
 
@@ -47,6 +46,9 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
 });
+
+
+let botManager = new BotManager("4G64kNtxl6f5DoQQFJkw",db);
 
 
 
