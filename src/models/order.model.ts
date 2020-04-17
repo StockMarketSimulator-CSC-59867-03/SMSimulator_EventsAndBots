@@ -2,7 +2,7 @@ export interface Order {
     price: number;
     quantity: number;
     sessionID: String;
-    stock: Number; 
+    stock: string; 
     time: number;
     user: String;
 }

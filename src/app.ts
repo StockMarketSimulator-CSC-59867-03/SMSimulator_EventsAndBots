@@ -16,6 +16,8 @@ admin.initializeApp({
 
 import IndexMiddleWare, * as indexRouter from './classes/index';
 import BotManager from './classes/BotManager';
+import EventManager from './classes/EventManager';
+
 
 var app = express();
 
@@ -49,6 +51,8 @@ app.use(function(err, req, res, next) {
 
 
 let botManager = new BotManager("4G64kNtxl6f5DoQQFJkw",db);
+let eventManager = new EventManager("4G64kNtxl6f5DoQQFJkw",db);
+
 
 
 

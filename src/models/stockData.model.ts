@@ -1,7 +1,7 @@
 export interface StockDataModel {
     favorability: number;
     name: string;
-    price: Number;
+    price: number;
     sector: string;
     symbol: string;
 }
