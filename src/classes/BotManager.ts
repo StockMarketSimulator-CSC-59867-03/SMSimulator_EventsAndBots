@@ -18,6 +18,7 @@ export default class BotManager {
     db: any;
     stockDataListner: any;
     chanceOfOrder: number = 5; // Percentage chance of all stocks creating a buy/sell order in a iteration of the loop. 
+    chanceOfMatch: number = 5; // Percentage chance of buy order to get perfectly matched with a sell order
     constructor(sessionID: string, db: any) {
         this.sessionID = sessionID;
         this.db = db;
@@ -77,20 +78,34 @@ export default class BotManager {
             let qunatityConfig = favorabilityConfig[favoribility].Quantity;
 
             // BUY ORDER
-            let priceRange = 10; // Needs to depend on favoribility
-            let quantity = 10; // Needs to depend on favoribility
             const {max: buyPriceMax, min: buyPriceMin} = this.computePercentRange(buyConfig.priceMax,buyConfig.priceMin,data.price);
+            let buyPrice = randomizeFloat(buyPriceMax,buyPriceMin); 
+            let buyQuantity = randomizeInteger(qunatityConfig.max,qunatityConfig.min);
+
             let newBuyOrder: Order = {
-                price: randomizeFloat(buyPriceMax,buyPriceMin),
-                quantity: randomizeInteger(qunatityConfig.max,qunatityConfig.min),
+                price: buyPrice ,
+                quantity: buyQuantity,
                 sessionID: this.sessionID,
                 stock: symbol,
                 time: date.getTime(),
                 user: "bot"
             };
 
+            if(randomizeInteger(100,0) < this.chanceOfMatch ){ // Chance of a perfect match. 
+                let matchedSellOrderDoc = this.db.collection("SellOrders").doc();
+                let matchedBuyOrder: Order = {
+                    price: randomizeFloat(buyPriceMax,buyPriceMin),
+                    quantity: randomizeInteger(qunatityConfig.max,qunatityConfig.min),
+                    sessionID: this.sessionID,
+                    stock: symbol,
+                    time: date.getTime(),
+                    user: "bot"
+                };
+                batch.set(matchedSellOrderDoc, matchedBuyOrder);
+            }
+
             console.log(newBuyOrder);
-            // batch.set(buyOrderDoc, newBuyOrder);
+            batch.set(buyOrderDoc, newBuyOrder);
 
             // SELL ORDER
             const {max: sellPriceMax, min: sellPriceMin} = this.computePercentRange(sellConfig.priceMax,sellConfig.priceMin,data.price);
@@ -105,11 +120,10 @@ export default class BotManager {
             };
 
             console.log(newSellOrder);
-           // batch.set(sellOrderDoc, newSellOrder);
+            batch.set(sellOrderDoc, newSellOrder);
 
           }
           console.log("Loop Iteration Complete");
-          return;
           batch.commit().then(function () {
             console.log("Completed Batch");
         });
